@@ -1,0 +1,21 @@
+
+# ไฟล์ระบบ
+.DS_Store
+Thumbs.db
+
+# โฟลเดอร์ของ Composer (PHP)
+vendor/
+
+# โฟลเดอร์ของ Node.js
+node_modules/
+
+# ไฟล์การตั้งค่าเฉพาะเครื่อง
+.env
+*.log
+
+# โฟลเดอร์ 
+.vscode/
+.idea/
+
+*.sql
+*.bak
