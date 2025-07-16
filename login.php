@@ -2,11 +2,21 @@
 session_start();
 require_once 'db_connect.php';
 
+// Redirect if already logged in
+if (isset($_SESSION['user_id'])) {
+    if ($_SESSION['role'] == 'admin') {
+        header('Location: admin_login.php');
+    } elseif ($_SESSION['role'] == 'customer') {
+        header('Location: index.php');
+    }
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    $sql = "SELECT * FROM users WHERE username = ? AND role = 'customer'";
+    $sql = "SELECT id, name, role, password FROM users WHERE username = ? AND role = 'customer'";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param('s', $username);
     $stmt->execute();
@@ -16,15 +26,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $user = $result->fetch_assoc();
         if (password_verify($password, $user['password'])) {
             $_SESSION['user_id'] = $user['id'];
-            $_SESSION['role'] = $user['role'];
             $_SESSION['name'] = $user['name'];
+            $_SESSION['role'] = $user['role'];
             header('Location: index.php');
-            exit;
         } else {
-            $error = "Invalid password";
+            $error = "Invalid password.";
         }
     } else {
-        $error = "Customer not found";
+        $error = "Customer not found.";
     }
 }
 ?>
@@ -32,13 +41,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Customer Login</title>
+    <title>Login</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h2>Customer Login</h2>
-        <?php if (isset($_SESSION['name'])): ?>
+        <h2>Login</h2>
+        <?php if (isset($_SESSION['user_id'])): ?>
             <p class="session-info">Logged in as: <?php echo htmlspecialchars($_SESSION['name']); ?> (<a href="logout.php">Logout</a>)</p>
         <?php endif; ?>
         <?php if (isset($error)) echo "<p class='error'>$error</p>"; ?>
@@ -47,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <input type="password" name="password" placeholder="Password" required>
             <button type="submit">Login</button>
         </form>
-        <p><a href="index.php">Back to Home</a> | <a href="register.php">Register</a></p>
+        <p><a href="register.php">Register</a></p>
     </div>
 </body>
 </html>

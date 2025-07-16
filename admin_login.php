@@ -2,11 +2,21 @@
 session_start();
 require_once 'db_connect.php';
 
+// Redirect if already logged in
+if (isset($_SESSION['user_id'])) {
+    if ($_SESSION['role'] == 'admin') {
+        header('Location: products.php');
+    } elseif ($_SESSION['role'] == 'customer') {
+        header('Location: login.php');
+    }
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    $sql = "SELECT * FROM users WHERE username = ? AND role = 'admin'";
+    $sql = "SELECT id, name, role, password FROM users WHERE username = ? AND role = 'admin'";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param('s', $username);
     $stmt->execute();
@@ -16,15 +26,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $user = $result->fetch_assoc();
         if (password_verify($password, $user['password'])) {
             $_SESSION['user_id'] = $user['id'];
-            $_SESSION['role'] = $user['role'];
             $_SESSION['name'] = $user['name'];
-            header('Location: dashboard.php');
-            exit;
+            $_SESSION['role'] = $user['role'];
+            header('Location: products.php');
         } else {
-            $error = "Invalid password";
+            $error = "Invalid password.";
         }
     } else {
-        $error = "Admin not found";
+        $error = "Admin not found.";
     }
 }
 ?>
@@ -38,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body>
     <div class="container">
         <h2>Admin Login</h2>
-        <?php if (isset($_SESSION['name'])): ?>
+        <?php if (isset($_SESSION['user_id'])): ?>
             <p class="session-info">Logged in as: <?php echo htmlspecialchars($_SESSION['name']); ?> (<a href="logout.php">Logout</a>)</p>
         <?php endif; ?>
         <?php if (isset($error)) echo "<p class='error'>$error</p>"; ?>
@@ -47,7 +56,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <input type="password" name="password" placeholder="Password" required>
             <button type="submit">Login</button>
         </form>
-        <p><a href="index.php">Back to Home</a> | <a href="customer_login.php">Customer Login</a> | <a href="register.php">Register</a></p>
     </div>
 </body>
 </html>
