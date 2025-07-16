@@ -7,12 +7,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
     exit;
 }
 
-// Fetch counts for dashboard stats
-$sql = "SELECT COUNT(*) as product_count FROM products";
-$product_count = $conn->query($sql)->fetch_assoc()['product_count'];
-
-$sql = "SELECT COUNT(*) as customer_count FROM users WHERE role = 'customer'";
-$customer_count = $conn->query($sql)->fetch_assoc()['customer_count'];
+// Fetch counts with minimal queries
+$product_count = $conn->query("SELECT COUNT(*) as count FROM products")->fetch_assoc()['count'];
+$customer_count = $conn->query("SELECT COUNT(*) as count FROM users WHERE role = 'customer'")->fetch_assoc()['count'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -23,24 +20,19 @@ $customer_count = $conn->query($sql)->fetch_assoc()['customer_count'];
 </head>
 <body>
     <div class="container">
-        <h2>Admin Dashboard</h2>
         <?php if (isset($_SESSION['name'])): ?>
-            <p class="session-info">Logged in as: <?php echo htmlspecialchars($_SESSION['name']); ?> (<a href="logout.php">Logout</a>)</p>
+            <p>Logged in as: <?php echo htmlspecialchars($_SESSION['name']); ?> (<a href="logout.php">Logout</a>)</p>
         <?php endif; ?>
         <nav>
             <a href="index.php">Home</a>
             <a href="products.php">Manage Products</a>
             <a href="customers.php">Manage Customers</a>
-            <a href="register.php">Register New Customer</a>
+            <a href="register.php">Register</a>
         </nav>
-        <h3>Overview</h3>
-        <p><strong>Total Products:</strong> <?php echo $product_count; ?></p>
-        <p><strong>Total Customers:</strong> <?php echo $customer_count; ?></p>
-        <div class="dashboard-actions">
-            <h4>Quick Actions</h4>
-            <p><a href="products.php" class="button">Add New Product</a></p>
-            <p><a href="customers.php" class="button">Add New Customer</a></p>
-        </div>
+        <h2>Dashboard</h2>
+        <p>Total Products: <?php echo $product_count; ?></p>
+        <p>Total Customers: <?php echo $customer_count; ?></p>
+        <p><a href="products.php">Add Product</a> | <a href="customers.php">Add Customer</a></p>
     </div>
 </body>
 </html>
