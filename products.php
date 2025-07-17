@@ -127,7 +127,7 @@ if (isset($_GET['edit'])) {
 }
 
 // Fetch all products
-$sql = "SELECT * FROM products";
+$sql = "SELECT * FROM products ORDER BY order_index ASC";
 $products = $conn->query($sql);
 
 // Fetch all orders for admin
@@ -155,6 +155,7 @@ $orders = $conn->query($sql);
         <nav>
             <a href="dashboard.php">Back to Dashboard</a>
             <a href="index.php">Home</a>
+            <a href="admin_reorder_products.php">Reorder Products</a>
         </nav>
         <h3><?php echo $edit_product ? 'Edit Product' : 'Add New Product'; ?></h3>
         <?php if (isset($error)) echo "<p class='error'>$error</p>"; ?>
@@ -183,7 +184,7 @@ $orders = $conn->query($sql);
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
+                    
                     <th>Name</th>
                     <th>Price</th>
                     <th>SKU</th>
@@ -198,7 +199,7 @@ $orders = $conn->query($sql);
             <tbody>
                 <?php while ($product = $products->fetch_assoc()): ?>
                 <tr>
-                    <td><?php echo $product['id']; ?></td>
+                
                     <td><?php echo $product['name']; ?></td>
                     <td><?php echo $product['price']; ?></td>
                     <td><?php echo $product['sku'] ?: 'N/A'; ?></td>
@@ -220,7 +221,7 @@ $orders = $conn->query($sql);
         <table>
             <thead>
                 <tr>
-                    <th>Order ID</th>
+                  
                     <th>User</th>
                     <th>Product</th>
                     <th>Quantity</th>
@@ -232,7 +233,7 @@ $orders = $conn->query($sql);
             <tbody>
                 <?php while ($order = $orders->fetch_assoc()): ?>
                 <tr>
-                    <td><?php echo $order['id']; ?></td>
+                   
                     <td><?php echo htmlspecialchars($order['user_name']); ?></td>
                     <td><?php echo htmlspecialchars($order['product_name']); ?></td>
                     <td><?php echo $order['quantity']; ?></td>

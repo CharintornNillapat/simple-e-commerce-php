@@ -130,7 +130,7 @@ if (isset($_GET['edit'])) {
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <!-- <th>ID</th> -->
                     <th>Name</th>
                     <th>Username</th>
                     <th>Address</th>
@@ -142,7 +142,7 @@ if (isset($_GET['edit'])) {
             <tbody>
                 <?php while ($customer = $customers->fetch_assoc()): ?>
                 <tr>
-                    <td><?php echo $customer['id']; ?></td>
+                    <!-- <td><?php echo $customer['id']; ?></td> -->
                     <td><?php echo $customer['name']; ?></td>
                     <td><?php echo $customer['username']; ?></td>
                     <td><?php echo $customer['address'] ?: 'No address'; ?></td>
