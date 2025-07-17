@@ -88,74 +88,157 @@ if (isset($_GET['edit'])) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Manage Customers</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Customers</title>
+    <link rel="stylesheet" href="dashboard_styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <h2>Manage Customers</h2>
-        <?php if (isset($_SESSION['name'])): ?>
-            <p class="session-info">Logged in as: <?php echo htmlspecialchars($_SESSION['name']); ?> (<a href="logout.php">Logout</a>)</p>
-        <?php endif; ?>
-        <nav>
-            <a href="dashboard.php">Back to Dashboard</a>
-            <a href="index.php">Home</a>
-            <a href="register.php">Register New Customer</a>
-        </nav>
-        <h3>Search Customers</h3>
-        <form method="POST" class="search-form">
-            <input type="text" name="search_query" placeholder="Search by name, username, or address" value="<?php echo htmlspecialchars($search_query); ?>">
-            <button type="submit" name="search">Search</button>
-            <?php if ($search_query): ?>
-                <a href="customers.php" class="button">Clear Search</a>
-            <?php endif; ?>
-        </form>
-        <h3><?php echo $edit_customer ? 'Edit Customer' : 'Add New Customer'; ?></h3>
-        <form method="POST">
-            <?php if ($edit_customer): ?>
-                <input type="hidden" name="id" value="<?php echo $edit_customer['id']; ?>">
-            <?php endif; ?>
-            <input type="text" name="name" placeholder="Name" value="<?php echo $edit_customer ? $edit_customer['name'] : ''; ?>" required>
-            <input type="text" name="username" placeholder="Username" value="<?php echo $edit_customer ? $edit_customer['username'] : ''; ?>" required>
-            <input type="password" name="password" placeholder="Password (leave blank to keep unchanged)" <?php echo $edit_customer ? '' : 'required'; ?>>
-            <textarea name="address" placeholder="Address"><?php echo $edit_customer ? $edit_customer['address'] : ''; ?></textarea>
-            <select name="role">
-                <option value="customer" <?php echo ($edit_customer && $edit_customer['role'] == 'customer') ? 'selected' : ''; ?>>Customer</option>
-            </select>
-            <button type="submit" name="<?php echo $edit_customer ? 'update_customer' : 'add_customer'; ?>">
-                <?php echo $edit_customer ? 'Update Customer' : 'Add Customer'; ?>
-            </button>
-        </form>
-        <h3>Customer List</h3>
-        <table>
-            <thead>
-                <tr>
-                    <!-- <th>ID</th> -->
-                    <th>Name</th>
-                    <th>Username</th>
-                    <th>Address</th>
-                    <th>Role</th>
-                    <th>Created At</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php while ($customer = $customers->fetch_assoc()): ?>
-                <tr>
-                    <!-- <td><?php echo $customer['id']; ?></td> -->
-                    <td><?php echo $customer['name']; ?></td>
-                    <td><?php echo $customer['username']; ?></td>
-                    <td><?php echo $customer['address'] ?: 'No address'; ?></td>
-                    <td><?php echo $customer['role']; ?></td>
-                    <td><?php echo $customer['created_at']; ?></td>
-                    <td>
-                        <a href="customers.php?edit=<?php echo $customer['id']; ?>">Edit</a>
-                        <a href="customers.php?delete=<?php echo $customer['id']; ?>" onclick="return confirm('Are you sure you want to delete this customer?');">Delete</a>
-                    </td>
-                </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-store"></i> Admin Panel</h2>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="nav-item">
+                        <a href="dashboard.php" class="nav-link">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="products.php" class="nav-link">
+                            <i class="fas fa-box"></i>
+                            <span>Products</span>
+                        </a>
+                    </li>
+                    <li class="nav-item active">
+                        <a href="customers.php" class="nav-link">
+                            <i class="fas fa-users"></i>
+                            <span>Customers</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="orders.php" class="nav-link">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Orders</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="admin_reorder_products.php" class="nav-link">
+                            <i class="fas fa-sort"></i>
+                            <span>Reorder Products</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span><?php echo htmlspecialchars($_SESSION['name']); ?></span>
+                </div>
+                <a href="logout.php" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-header">
+                <h1>Customers</h1>
+                <div class="breadcrumb">
+                    <span>Home</span> / <span class="current">Customers</span>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon customers">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3><?php echo $conn->query("SELECT COUNT(*) as count FROM users WHERE role = 'customer'")->fetch_assoc()['count']; ?></h3>
+                        <p>Total Customers</p>
+                    </div>
+                    <div class="stat-action">
+                        <a href="customers.php">Manage <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <h2>Customer Management</h2>
+                <div class="action-grid">
+                    <div class="action-card" style="padding: 2rem; text-align: left;">
+                        <h3>Search Customers</h3>
+                        <form method="POST" class="search-form" style="margin-bottom: 1rem;">
+                            <input type="text" name="search_query" placeholder="Search by name, username, or address" value="<?php echo htmlspecialchars($search_query); ?>">
+                            <button type="submit" name="search">Search</button>
+                            <?php if ($search_query): ?>
+                                <a href="customers.php" class="action-btn" style="padding: 0.75rem 1.5rem;">Clear Search</a>
+                            <?php endif; ?>
+                        </form>
+                        <h3><?php echo $edit_customer ? 'Edit Customer' : 'Add New Customer'; ?></h3>
+                        <form method="POST">
+                            <?php if ($edit_customer): ?>
+                                <input type="hidden" name="id" value="<?php echo $edit_customer['id']; ?>">
+                            <?php endif; ?>
+                            <input type="text" name="name" placeholder="Name" value="<?php echo $edit_customer ? $edit_customer['name'] : ''; ?>" required>
+                            <input type="text" name="username" placeholder="Username" value="<?php echo $edit_customer ? $edit_customer['username'] : ''; ?>" required>
+                            <input type="password" name="password" placeholder="Password (leave blank to keep unchanged)" <?php echo $edit_customer ? '' : 'required'; ?>>
+                            <textarea name="address" placeholder="Address"><?php echo $edit_customer ? $edit_customer['address'] : ''; ?></textarea>
+                            <select name="role">
+                                <option value="customer" <?php echo ($edit_customer && $edit_customer['role'] == 'customer') ? 'selected' : ''; ?>>Customer</option>
+                            </select>
+                            <button type="submit" name="<?php echo $edit_customer ? 'update_customer' : 'add_customer'; ?>" class="action-btn" style="width: fit-content;">
+                                <?php echo $edit_customer ? 'Update Customer' : 'Add Customer'; ?>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <h2>Customer List</h2>
+                <div class="action-grid">
+                    <div class="action-card" style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Username</th>
+                                    <th>Address</th>
+                                    <th>Role</th>
+                                    <th>Created At</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php while ($customer = $customers->fetch_assoc()): ?>
+                                <tr>
+                                    <td><?php echo $customer['name']; ?></td>
+                                    <td><?php echo $customer['username']; ?></td>
+                                    <td><?php echo $customer['address'] ?: 'No address'; ?></td>
+                                    <td><?php echo $customer['role']; ?></td>
+                                    <td><?php echo $customer['created_at']; ?></td>
+                                    <td>
+                                        <a href="customers.php?edit=<?php echo $customer['id']; ?>" class="action-btn" style="padding: 0.5rem 1rem; margin: 2px;">Edit</a>
+                                        <a href="customers.php?delete=<?php echo $customer['id']; ?>" class="action-btn" style="padding: 0.5rem 1rem; margin: 2px; background: #e74c3c;" onclick="return confirm('Are you sure you want to delete this customer?');">Delete</a>
+                                    </td>
+                                </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 </body>
 </html>
