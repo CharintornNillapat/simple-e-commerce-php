@@ -33,7 +33,7 @@ $orders = $stmt->get_result();
         <?php endif; ?>
         <nav>
             <a href="index.php">Back to Home</a>
-            <a href="order.php">View Cart</a>
+            <a href="orders.php">View Cart</a>
         </nav>
         <?php
         if ($orders->num_rows == 0) {

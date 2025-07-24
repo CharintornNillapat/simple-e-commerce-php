@@ -2,6 +2,7 @@
 session_start();
 require_once 'db_connect.php';
 
+// Check if user is logged in as a customer
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'customer') {
     header('Location: login.php');
     exit;
@@ -40,10 +41,6 @@ if (isset($_GET['add_to_cart']) && isset($_GET['product_id'])) {
     header('Location: index.php');
     exit;
 }
-
-// Fetch available products
-$sql = "SELECT id, name, price, quantity FROM products WHERE quantity > 0";
-$products = $conn->query($sql);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -59,16 +56,29 @@ $products = $conn->query($sql);
             <p>Logged in as: <?php echo htmlspecialchars($_SESSION['name']); ?> (<a href="logout.php">Logout</a>)</p>
         <?php endif; ?>
         <nav>
-            <a href="order.php">View Cart</a>
+            <a href="orders.php">View Cart</a>
             <a href="order_history.php">Order History</a>
         </nav>
         <h3>Available Products</h3>
         <div class="product-grid">
-            <?php while ($product = $products->fetch_assoc()): ?>
+            <?php
+            // Fetch available products with image
+            $sql = "SELECT id, name, price, quantity, image FROM products WHERE quantity > 0 ORDER BY order_index ASC"; // Added order_index
+            $products = $conn->query($sql);
+            while ($product = $products->fetch_assoc()):
+            ?>
                 <div class="product-card">
+                    <div class="product-poster-frame">
+                        <?php if ($product['image']): ?>
+                            <img src="uploads/<?php echo htmlspecialchars($product['image']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>">
+                        <?php else: ?>
+                            <span style="color: #888;">No Image Available</span>
+                        <?php endif; ?>
+                    </div>
                     <h4><?php echo htmlspecialchars($product['name']); ?></h4>
                     <p>Price: $<?php echo $product['price']; ?></p>
                     <p>Stock: <?php echo $product['quantity']; ?></p>
+                    
                     <a href="?add_to_cart=1&product_id=<?php echo $product['id']; ?>" class="button">Add to Cart</a>
                 </div>
             <?php endwhile; ?>

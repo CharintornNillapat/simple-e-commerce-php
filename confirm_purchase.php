@@ -30,7 +30,7 @@ $total = $stmt->get_result()->fetch_assoc()['total'] ?: 0;
         <?php endif; ?>
         <nav>
             <a href="index.php">Back to Home</a>
-            <a href="order.php">View Cart</a>
+            <a href="orders.php">View Cart</a>
         </nav>
         <p>Your purchase of $<?php echo number_format($total, 2); ?> has been confirmed!</p>
         <h3>Payment Placeholder</h3>
