@@ -92,6 +92,76 @@ if (isset($_GET['edit'])) {
     <title>Admin Dashboard - Customers</title>
     <link rel="stylesheet" href="dashboard_styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            max-width: 800px;
+        }
+        .form-grid div {
+            margin-bottom: 1rem;
+        }
+        .form-grid label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+        .form-grid input, .form-grid textarea, .form-grid select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-grid textarea {
+            height: 120px;
+            resize: vertical;
+        }
+        .image-preview {
+            border: 1px solid #ddd;
+            padding: 0.5rem;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .action-card.form-card {
+            background-color: #f9f9f9;
+            padding: 2rem;
+        }
+        .search-form {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .search-form input {
+            flex-grow: 1;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .search-form button {
+            padding: 0.75rem 1.5rem;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .search-form button:hover {
+            background-color: #2980b9;
+        }
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .search-form {
+                flex-direction: column;
+            }
+            .search-form button {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="dashboard-container">
@@ -175,9 +245,9 @@ if (isset($_GET['edit'])) {
             <div class="quick-actions">
                 <h2>Customer Management</h2>
                 <div class="action-grid">
-                    <div class="action-card" style="padding: 2rem; text-align: left;">
+                    <div class="action-card form-card">
                         <h3>Search Customers</h3>
-                        <form method="POST" class="search-form" style="margin-bottom: 1rem;">
+                        <form method="POST" class="search-form">
                             <input type="text" name="search_query" placeholder="Search by name, username, or address" value="<?php echo htmlspecialchars($search_query); ?>">
                             <button type="submit" name="search">Search</button>
                             <?php if ($search_query): ?>
@@ -185,20 +255,37 @@ if (isset($_GET['edit'])) {
                             <?php endif; ?>
                         </form>
                         <h3><?php echo $edit_customer ? 'Edit Customer' : 'Add New Customer'; ?></h3>
-                        <form method="POST">
+                        <form method="POST" class="form-grid">
                             <?php if ($edit_customer): ?>
                                 <input type="hidden" name="id" value="<?php echo $edit_customer['id']; ?>">
                             <?php endif; ?>
-                            <input type="text" name="name" placeholder="Name" value="<?php echo $edit_customer ? $edit_customer['name'] : ''; ?>" required>
-                            <input type="text" name="username" placeholder="Username" value="<?php echo $edit_customer ? $edit_customer['username'] : ''; ?>" required>
-                            <input type="password" name="password" placeholder="Password (leave blank to keep unchanged)" <?php echo $edit_customer ? '' : 'required'; ?>>
-                            <textarea name="address" placeholder="Address"><?php echo $edit_customer ? $edit_customer['address'] : ''; ?></textarea>
-                            <select name="role">
-                                <option value="customer" <?php echo ($edit_customer && $edit_customer['role'] == 'customer') ? 'selected' : ''; ?>>Customer</option>
-                            </select>
-                            <button type="submit" name="<?php echo $edit_customer ? 'update_customer' : 'add_customer'; ?>" class="action-btn" style="width: fit-content;">
-                                <?php echo $edit_customer ? 'Update Customer' : 'Add Customer'; ?>
-                            </button>
+                            <div>
+                                <label for="name">Name:</label>
+                                <input type="text" id="name" name="name" placeholder="Name" value="<?php echo $edit_customer ? $edit_customer['name'] : ''; ?>" required>
+                            </div>
+                            <div>
+                                <label for="username">Username:</label>
+                                <input type="text" id="username" name="username" placeholder="Username" value="<?php echo $edit_customer ? $edit_customer['username'] : ''; ?>" required>
+                            </div>
+                            <div>
+                                <label for="password">Password:</label>
+                                <input type="password" id="password" name="password" placeholder="Password (leave blank to keep unchanged)" <?php echo $edit_customer ? '' : 'required'; ?>>
+                            </div>
+                            <div>
+                                <label for="address">Address:</label>
+                                <textarea id="address" name="address" placeholder="Address"><?php echo $edit_customer ? $edit_customer['address'] : ''; ?></textarea>
+                            </div>
+                            <div>
+                                <label for="role">Role:</label>
+                                <select id="role" name="role">
+                                    <option value="customer" <?php echo ($edit_customer && $edit_customer['role'] == 'customer') ? 'selected' : ''; ?>>Customer</option>
+                                </select>
+                            </div>
+                            <div style="grid-column: span 2;">
+                                <button type="submit" name="<?php echo $edit_customer ? 'update_customer' : 'add_customer'; ?>" class="action-btn" style="width: 100%; padding: 0.75rem;">
+                                    <?php echo $edit_customer ? 'Update Customer' : 'Add Customer'; ?>
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -222,8 +309,8 @@ if (isset($_GET['edit'])) {
                             <tbody>
                                 <?php while ($customer = $customers->fetch_assoc()): ?>
                                 <tr>
-                                    <td><?php echo $customer['name']; ?></td>
-                                    <td><?php echo $customer['username']; ?></td>
+                                    <td><?php echo htmlspecialchars($customer['name']); ?></td>
+                                    <td><?php echo htmlspecialchars($customer['username']); ?></td>
                                     <td><?php echo $customer['address'] ?: 'No address'; ?></td>
                                     <td><?php echo $customer['role']; ?></td>
                                     <td><?php echo $customer['created_at']; ?></td>

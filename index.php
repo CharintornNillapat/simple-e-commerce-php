@@ -2,14 +2,14 @@
 session_start();
 require_once 'db_connect.php';
 
-// Check if user is logged in as a customer
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'customer') {
+// Check if user is logged in (must be customer or admin)
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['customer', 'admin'])) {
     header('Location: login.php');
     exit;
 }
 
-// Handle add to cart
-if (isset($_GET['add_to_cart']) && isset($_GET['product_id'])) {
+// Handle add to cart (only customers can add)
+if ($_SESSION['role'] === 'customer' && isset($_GET['add_to_cart']) && isset($_GET['product_id'])) {
     $product_id = $_GET['product_id'];
     $user_id = $_SESSION['user_id'];
     $sql = "SELECT id, quantity FROM products WHERE id = ? AND quantity > 0";
@@ -41,48 +41,90 @@ if (isset($_GET['add_to_cart']) && isset($_GET['product_id'])) {
     header('Location: index.php');
     exit;
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Home</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop</title>
+    <link rel="stylesheet" href="dashboard_styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <h2>Welcome to the Shop</h2>
-        <?php if (isset($_SESSION['name'])): ?>
-            <p>Logged in as: <?php echo htmlspecialchars($_SESSION['name']); ?> (<a href="logout.php">Logout</a>)</p>
-        <?php endif; ?>
-        <nav>
-            <a href="orders.php">View Cart</a>
-            <a href="order_history.php">Order History</a>
-        </nav>
-        <h3>Available Products</h3>
-        <div class="product-grid">
-            <?php
-            // Fetch available products with image
-            $sql = "SELECT id, name, price, quantity, image FROM products WHERE quantity > 0 ORDER BY order_index ASC"; // Added order_index
-            $products = $conn->query($sql);
-            while ($product = $products->fetch_assoc()):
-            ?>
-                <div class="product-card">
-                    <div class="product-poster-frame">
-                        <?php if ($product['image']): ?>
-                            <img src="uploads/<?php echo htmlspecialchars($product['image']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>">
-                        <?php else: ?>
-                            <span style="color: #888;">No Image Available</span>
-                        <?php endif; ?>
-                    </div>
-                    <h4><?php echo htmlspecialchars($product['name']); ?></h4>
-                    <p>Price: $<?php echo $product['price']; ?></p>
-                    <p>Stock: <?php echo $product['quantity']; ?></p>
-                    
-                    <a href="?add_to_cart=1&product_id=<?php echo $product['id']; ?>" class="button">Add to Cart</a>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-store"></i> Shop</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="nav-item active">
+                        <a href="index.php" class="nav-link">
+                            <i class="fas fa-store"></i>
+                            <span>Products</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="cart.php" class="nav-link">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Cart</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="order_history.php" class="nav-link">
+                            <i class="fas fa-history"></i>
+                            <span>Order History</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="logout.php" class="nav-link">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Logged in as: <?php echo htmlspecialchars($_SESSION['name']); ?></span>
                 </div>
-            <?php endwhile; ?>
-        </div>
+            </div>
+        </aside>
+        <main class="main-content">
+            <div class="content-header">
+                <h1>Products</h1>
+                <div class="breadcrumb">
+                    <span>Home</span> / <span class="current">Products</span>
+                </div>
+            </div>
+            <div class="quick-actions">
+                <div class="action-grid">
+                    <?php
+                    $sql = "SELECT id, name, price, quantity, image FROM products WHERE quantity > 0 ORDER BY order_index ASC";
+                    $products = $conn->query($sql);
+                    if ($products->num_rows == 0) {
+                        echo "<p style='padding: 2rem;'>No products available.</p>";
+                    } else {
+                        while ($product = $products->fetch_assoc()):
+                    ?>
+                        <div class="action-card" style="text-align: center; padding: 1.5rem;">
+                            <?php if ($product['image']): ?>
+                                <img src="uploads/<?php echo htmlspecialchars($product['image']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" style="max-width: 150px; max-height: 150px; margin-bottom: 1rem;">
+                            <?php else: ?>
+                                <span style="color: #888;">No Image Available</span>
+                            <?php endif; ?>
+                            <h3><?php echo htmlspecialchars($product['name']); ?></h3>
+                            <p>Price: $<?php echo number_format($product['price'], 2); ?></p>
+                            <p>Stock: <?php echo $product['quantity']; ?></p>
+                            <a href="?add_to_cart=1&product_id=<?php echo $product['id']; ?>" class="action-btn" style="width: 100%; margin-top: 1rem;">Add to Cart</a>
+                        </div>
+                    <?php endwhile; } ?>
+                </div>
+            </div>
+        </main>
     </div>
 </body>
 </html>

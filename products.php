@@ -7,17 +7,27 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
     exit;
 }
 
+// Debug: Log POST data for troubleshooting
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    error_log("POST Data: " . print_r($_POST, true));
+    if (isset($_FILES['image'])) {
+        error_log("File Data: " . print_r($_FILES, true));
+    }
+}
+
 // Handle product creation
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_product'])) {
     $name = $_POST['name'];
     $description = $_POST['description'];
     $price = $_POST['price'];
-    $sku = $_POST['sku'];
-    $quantity = $_POST['quantity'];
-    $category = $_POST['category'];
-    $weight = $_POST['weight'];
-    $brand = $_POST['brand'];
+    $sku = $_POST['sku'] ?? '';
+    $quantity = (int)$_POST['quantity'] ?? 0;
+    $category = $_POST['category'] ?? '';
+    $weight = $_POST['weight'] ?? 0.00;
+    $brand = $_POST['brand'] ?? '';
     $image = null;
+
+    error_log("Insert Values: $name, $description, $price, $sku, $quantity, $category, $weight, $brand, $image");
 
     if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
         $allowed_types = ['image/jpeg', 'image/png', 'image/jpg'];
@@ -42,9 +52,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_product'])) {
     if (!isset($error)) {
         $sql = "INSERT INTO products (name, description, price, sku, quantity, category, weight, brand, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param('ssdssdsss', $name, $description, $price, $sku, $quantity, $category, $weight, $brand, $image);
-        $stmt->execute();
-        header('Location: products.php');
+        $stmt->bind_param('ssdsisdss', $name, $description, $price, $sku, $quantity, $category, $weight, $brand, $image);
+        if ($stmt->execute()) {
+            header('Location: products.php');
+        } else {
+            $error = "Failed to add product: " . $conn->error;
+        }
         exit;
     }
 }
@@ -55,12 +68,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
     $name = $_POST['name'];
     $description = $_POST['description'];
     $price = $_POST['price'];
-    $sku = $_POST['sku'];
-    $quantity = $_POST['quantity'];
-    $category = $_POST['category'];
-    $weight = $_POST['weight'];
-    $brand = $_POST['brand'];
+    $sku = $_POST['sku'] ?? '';
+    $quantity = (int)$_POST['quantity'] ?? 0;
+    $category = $_POST['category'] ?? '';
+    $weight = $_POST['weight'] ?? 0.00;
+    $brand = $_POST['brand'] ?? '';
     $image = isset($_POST['existing_image']) ? $_POST['existing_image'] : null;
+
+    error_log("Update Values: $name, $description, $price, $sku, $quantity, $category, $weight, $brand, $image, $id");
 
     if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
         $allowed_types = ['image/jpeg', 'image/png', 'image/jpg'];
@@ -89,9 +104,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
     if (!isset($error)) {
         $sql = "UPDATE products SET name = ?, description = ?, price = ?, sku = ?, quantity = ?, category = ?, weight = ?, brand = ?, image = ? WHERE id = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param('ssdssdsssi', $name, $description, $price, $sku, $quantity, $category, $weight, $brand, $image, $id);
-        $stmt->execute();
-        header('Location: products.php');
+        $stmt->bind_param('ssdsisdssi', $name, $description, $price, $sku, $quantity, $category, $weight, $brand, $image, $id);
+        if ($stmt->execute()) {
+            header('Location: products.php');
+        } else {
+            $error = "Failed to update product: " . $conn->error;
+        }
         exit;
     }
 }
@@ -146,6 +164,48 @@ $orders = $conn->query($sql);
     <title>Admin Dashboard - Manage Products</title>
     <link rel="stylesheet" href="dashboard_styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            max-width: 800px;
+        }
+        .form-grid div {
+            margin-bottom: 1rem;
+        }
+        .form-grid label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+        .form-grid input, .form-grid textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-grid textarea {
+            height: 120px;
+            resize: vertical;
+        }
+        .image-preview {
+            border: 1px solid #ddd;
+            padding: 0.5rem;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .action-card.form-card {
+            background-color: #f9f9f9;
+            padding: 2rem;
+        }
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="dashboard-container">
@@ -261,29 +321,63 @@ $orders = $conn->query($sql);
             </div>
 
             <?php if (isset($_GET['add']) || isset($_GET['edit'])): ?>
-                <div class="action-card" style="margin-top: 2rem; padding: 2rem; text-align: left;">
+                <div class="action-card form-card" style="margin-top: 2rem;">
                     <h3><?php echo isset($_GET['edit']) ? 'Edit Product' : 'Add New Product'; ?></h3>
                     <?php if (isset($error)) echo "<p class='error'>$error</p>"; ?>
-                    <form method="POST" enctype="multipart/form-data">
+                    <form method="POST" enctype="multipart/form-data" class="form-grid">
                         <?php if ($edit_product): ?>
                             <input type="hidden" name="id" value="<?php echo $edit_product['id']; ?>">
                             <input type="hidden" name="existing_image" value="<?php echo $edit_product['image']; ?>">
                         <?php endif; ?>
-                        <input type="text" name="name" placeholder="Product Name" value="<?php echo $edit_product ? $edit_product['name'] : ''; ?>" required>
-                        <textarea name="description" placeholder="Description"><?php echo $edit_product ? $edit_product['description'] : ''; ?></textarea>
-                        <input type="number" name="price" placeholder="Price" step="0.01" value="<?php echo $edit_product ? $edit_product['price'] : ''; ?>" required>
-                        <input type="text" name="sku" placeholder="SKU" value="<?php echo $edit_product ? $edit_product['sku'] : ''; ?>">
-                        <input type="number" name="quantity" placeholder="Quantity" value="<?php echo $edit_product ? $edit_product['quantity'] : ''; ?>" min="0">
-                        <input type="text" name="category" placeholder="Category" value="<?php echo $edit_product ? $edit_product['category'] : ''; ?>">
-                        <input type="number" name="weight" placeholder="Weight (kg)" step="0.01" value="<?php echo $edit_product ? $edit_product['price'] : ''; ?>" min="0">
-                        <input type="text" name="brand" placeholder="Brand" value="<?php echo $edit_product ? $edit_product['brand'] : ''; ?>">
-                        <input type="file" name="image" accept="image/jpeg,image/png,image/jpg">
+                        <div>
+                            <label for="name">Product Name:</label>
+                            <input type="text" id="name" name="name" placeholder="Product Name" value="<?php echo $edit_product ? htmlspecialchars($edit_product['name']) : ''; ?>" required>
+                        </div>
+                        <div>
+                            <label for="price">Price:</label>
+                            <input type="number" id="price" name="price" placeholder="Price" step="0.01" value="<?php echo $edit_product ? $edit_product['price'] : ''; ?>" required>
+                        </div>
+                        <div>
+                            <label for="sku">SKU:</label>
+                            <input type="text" id="sku" name="sku" placeholder="SKU" value="<?php echo $edit_product ? htmlspecialchars($edit_product['sku']) : ''; ?>">
+                        </div>
+                        <div>
+                            <label for="quantity">Quantity:</label>
+                            <input type="number" id="quantity" name="quantity" placeholder="Quantity" value="<?php echo $edit_product ? $edit_product['quantity'] : ''; ?>" min="0">
+                        </div>
+                        <div>
+                            <label for="category">Category:</label>
+                            <input type="text" id="category" name="category" placeholder="Category" value="<?php echo $edit_product ? htmlspecialchars($edit_product['category']) : ''; ?>" required>
+                        </div>
+                        <div>
+                            <label for="weight">Weight (kg):</label>
+                            <input type="number" id="weight" name="weight" placeholder="Weight (kg)" step="0.01" value="<?php echo $edit_product ? $edit_product['weight'] : ''; ?>" min="0">
+                        </div>
+                        <div>
+                            <label for="brand">Brand:</label>
+                            <input type="text" id="brand" name="brand" placeholder="Brand" value="<?php echo $edit_product ? htmlspecialchars($edit_product['brand']) : ''; ?>">
+                        </div>
+                        <div>
+                            <label for="description">Description:</label>
+                            <textarea id="description" name="description" placeholder="Description"><?php echo $edit_product ? $edit_product['description'] : ''; ?></textarea>
+                        </div>
+                        <div>
+                            <label for="image">Image:</label>
+                            <input type="file" id="image" name="image" accept="image/jpeg,image/png,image/jpg">
+                        </div>
                         <?php if ($edit_product && $edit_product['image']): ?>
-                            <p>Current Image: <img src="uploads/<?php echo htmlspecialchars($edit_product['image']); ?>" alt="Product Image" style="max-width: 200px; max-height: 200px;"></p>
+                            <div>
+                                <label>Current Image:</label>
+                                <div class="image-preview">
+                                    <img src="uploads/<?php echo htmlspecialchars($edit_product['image']); ?>" alt="Product Image" style="max-width: 200px; max-height: 200px;">
+                                </div>
+                            </div>
                         <?php endif; ?>
-                        <button type="submit" name="<?php echo $edit_product ? 'update_product' : 'add_product'; ?>">
-                            <?php echo $edit_product ? 'Update Product' : 'Add Product'; ?>
-                        </button>
+                        <div style="grid-column: span 2;">
+                            <button type="submit" name="<?php echo $edit_product ? 'update_product' : 'add_product'; ?>" class="action-btn" style="width: 100%; padding: 0.75rem;">
+                                <?php echo $edit_product ? 'Update Product' : 'Add Product'; ?>
+                            </button>
+                        </div>
                     </form>
                 </div>
             <?php endif; ?>
@@ -311,11 +405,11 @@ $orders = $conn->query($sql);
                                 <?php while ($product = $products->fetch_assoc()): ?>
                                 <tr>
                                     <td><?php echo $product['id']; ?></td>
-                                    <td><?php echo $product['name']; ?></td>
+                                    <td><?php echo htmlspecialchars($product['name']); ?></td>
                                     <td><?php echo $product['price']; ?></td>
                                     <td><?php echo $product['sku'] ?: 'N/A'; ?></td>
                                     <td><?php echo $product['quantity'] ?: '0'; ?></td>
-                                    <td><?php echo $product['category'] ?: 'N/A'; ?></td>
+                                    <td><?php echo htmlspecialchars($product['category']) ?: 'N/A'; ?></td>
                                     <td><?php echo $product['weight'] ?: '0.00'; ?></td>
                                     <td><?php echo $product['brand'] ?: 'N/A'; ?></td>
                                     <td><?php echo $product['image'] ? '<img src="uploads/' . htmlspecialchars($product['image']) . '" alt="Product Image" style="max-width: 100px; max-height: 100px;">' : 'No image'; ?></td>

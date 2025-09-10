@@ -81,7 +81,8 @@ body {
 
 .sidebar-footer {
     padding: 1.5rem;
-    border-top: 1px solid rgba(255,255,255,0.1);
+    border-top: 1px solid #ccc;
+    text-align: center;
 }
 
 .user-info {
@@ -90,9 +91,15 @@ body {
     gap: 0.5rem;
     margin-bottom: 1rem;
     padding: 0.5rem;
+    justify-content: center;
     background: rgba(255,255,255,0.1);
     border-radius: 8px;
+    color: #333;
 }
+.user-info i {
+    font-size: 1.2rem;
+}
+
 
 .logout-btn {
     display: flex;
@@ -341,4 +348,90 @@ body {
     .action-card {
         padding: 1.5rem;
     }
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+th {
+    background-color: #f4f4f4;
+}
+
+.action-card {
+    padding: 1.5rem;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.action-btn {
+    padding: 0.75rem 1.5rem;
+    background-color: #1da1f2;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+}
+.action-btn:hover {
+    background-color: #1a91da;
+}
+form {
+    margin: 0;
+}
+input, textarea {
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 0.25rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+textarea {
+    height: 100px;
+    resize: vertical;
+}
+label {
+    font-weight: bold;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    max-width: 800px;
+}
+.form-grid div {
+    margin-bottom: 1rem;
+}
+.form-grid label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+}
+.form-grid input, .form-grid textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+.form-grid textarea {
+    height: 120px;
+    resize: vertical;
+}
+.image-preview {
+    border: 1px solid #ddd;
+    padding: 0.5rem;
+    border-radius: 4px;
+    display: inline-block;
+}
+.action-card.form-card {
+    background-color: #f9f9f9;
+    padding: 2rem;
 }
