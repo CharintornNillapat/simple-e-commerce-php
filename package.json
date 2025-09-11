@@ -1,0 +1,23 @@
+{
+  "name": "simple-e-commerce-php",
+  "version": "1.0.0",
+  "description": "Shop System is a lightweight, database-driven e-commerce web application built using PHP, MySQL, HTML/CSS, and JavaScript. It features a customer shopping interface and an admin panel for managing products and orders. Ideal for learning, school projects, or small-scale deployment.",
+  "main": "scripts.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CharintornNillapat/simple-e-commerce-php.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CharintornNillapat/simple-e-commerce-php/issues"
+  },
+  "homepage": "https://github.com/CharintornNillapat/simple-e-commerce-php#readme",
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  }
+}

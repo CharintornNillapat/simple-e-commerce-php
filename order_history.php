@@ -54,129 +54,77 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['cancel_order'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order History</title>
-    <link rel="stylesheet" href="dashboard_styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            max-width: 800px;
-        }
-        .form-grid div {
-            margin-bottom: 1rem;
-        }
-        .form-grid label {
-            display: block;
-            margin-bottom: 0.25rem;
-            font-weight: 500;
-        }
-        .form-grid input, .form-grid textarea, .form-grid select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        .action-card {
-            background-color: #f9f9f9;
-            padding: 1.5rem;
-            border-radius: 4px;
-        }
-        .action-btn {
-            padding: 0.5rem 1rem;
-            background-color: #3498db;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            margin: 2px;
-        }
-        .action-btn.cancel {
-            background-color: #e74c3c;
-        }
-        .action-btn:hover {
-            background-color: #2980b9;
-        }
-        .action-btn.cancel:hover {
-            background-color: #c0392b;
-        }
-        @media (max-width: 768px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h2><i class="fas fa-history"></i> Order History</h2>
+    <div class="flex min-h-screen">
+        <aside class="w-64 bg-gray-800 text-white p-4">
+            <div class="sidebar-header mb-6">
+                <h2 class="text-xl flex items-center"><i class="fas fa-history mr-2"></i> Order History</h2>
             </div>
             <nav class="sidebar-nav">
                 <ul>
-                    <li class="nav-item">
-                        <a href="index.php" class="nav-link">
-                            <i class="fas fa-store"></i>
+                    <li class="nav-item mb-2">
+                        <a href="index.php" class="nav-link text-white hover:bg-gray-700 p-2 block rounded <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'bg-gray-700' : ''; ?>">
+                            <i class="fas fa-store mr-2"></i>
                             <span>Products</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="cart.php" class="nav-link">
-                            <i class="fas fa-shopping-cart"></i>
+                    <li class="nav-item mb-2">
+                        <a href="cart.php" class="nav-link text-white hover:bg-gray-700 p-2 block rounded <?php echo basename($_SERVER['PHP_SELF']) == 'cart.php' ? 'bg-gray-700' : ''; ?>">
+                            <i class="fas fa-shopping-cart mr-2"></i>
                             <span>Cart</span>
                         </a>
                     </li>
-                    <li class="nav-item active">
-                        <a href="order_history.php" class="nav-link">
-                            <i class="fas fa-history"></i>
+                    <li class="nav-item mb-2">
+                        <a href="order_history.php" class="nav-link text-white hover:bg-gray-700 p-2 block rounded <?php echo basename($_SERVER['PHP_SELF']) == 'order_history.php' ? 'bg-gray-700' : ''; ?>">
+                            <i class="fas fa-history mr-2"></i>
                             <span>Order History</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="logout.php" class="nav-link">
-                            <i class="fas fa-sign-out-alt"></i>
+                    <li class="nav-item mb-2">
+                        <a href="logout.php" class="nav-link text-white hover:bg-gray-700 p-2 block rounded">
+                            <i class="fas fa-sign-out-alt mr-2"></i>
                             <span>Logout</span>
-
-                            <l>
-                        </l>
+                        </a>
                     </li>
                 </ul>
             </nav>
-            <div class="sidebar-footer">
-                <div class="user-info">
-                    <i class="fas fa-user-circle"></i>
+            <div class="sidebar-footer mt-auto">
+                <div class="user-info flex items-center">
+                    <i class="fas fa-user-circle mr-2"></i>
                     <span>Logged in as: <?php echo htmlspecialchars($_SESSION['name']); ?></span>
                 </div>
             </div>
         </aside>
-        <main class="main-content">
-            <div class="content-header">
-                <h1>Order History</h1>
-                <div class="breadcrumb">
+        <main class="flex-1 p-6">
+            <div class="content-header mb-6">
+                <h1 class="text-2xl font-bold">Order History</h1>
+                <div class="breadcrumb text-gray-600">
                     <span>Home</span> / <span class="current">Order History</span>
                 </div>
             </div>
             <div class="quick-actions">
                 <div class="action-grid">
-                    <div class="action-card" style="overflow-x: auto; padding: 1.5rem;">
+                    <div class="action-card bg-gray-100 p-6 overflow-x-auto">
                         <?php
                         if ($orders->num_rows == 0) {
-                            echo "<p style='padding: 1rem;'>No orders found.</p>";
+                            echo "<p class='text-center p-4'>No orders found.</p>";
                         } else {
-                            echo "<table><thead><tr><th>Order ID</th><th>Product</th><th>Quantity</th><th>Total Price</th><th>Date</th><th>Status</th><th>Action</th></tr></thead><tbody>";
+                            echo "<table class='w-full text-left'><thead><tr class='border-b'><th class='p-2'>Order ID</th><th class='p-2'>Product</th><th class='p-2'>Quantity</th><th class='p-2'>Total Price</th><th class='p-2'>Date</th><th class='p-2'>Status</th><th class='p-2'>Action</th></tr></thead><tbody>";
                             while ($order = $orders->fetch_assoc()) {
-                                echo "<tr>";
-                                echo "<td>" . $order['id'] . "</td>";
-                                echo "<td>" . htmlspecialchars($order['name']) . "</td>";
-                                echo "<td>" . $order['quantity'] . "</td>";
-                                echo "<td>$" . number_format($order['total_price'], 2) . "</td>";
-                                echo "<td>" . $order['order_date'] . "</td>";
-                                echo "<td>" . htmlspecialchars($order['status']) . "</td>";
+                                echo "<tr class='border-b'>";
+                                echo "<td class='p-2'>" . $order['id'] . "</td>";
+                                echo "<td class='p-2'>" . htmlspecialchars($order['name']) . "</td>";
+                                echo "<td class='p-2'>" . $order['quantity'] . "</td>";
+                                echo "<td class='p-2'>$" . number_format($order['total_price'], 2) . "</td>";
+                                echo "<td class='p-2'>" . $order['order_date'] . "</td>";
+                                echo "<td class='p-2'>" . htmlspecialchars($order['status']) . "</td>";
                                 if (in_array($order['status'], ['pending', 'processing'])) {
-                                    echo "<td><form method='POST' style='display: inline;'><input type='hidden' name='order_id' value='" . $order['id'] . "'><button type='submit' name='cancel_order' class='action-btn cancel'>Cancel</button></form></td>";
+                                    echo "<td class='p-2'><form method='POST' class='inline-block'><input type='hidden' name='order_id' value='" . $order['id'] . "'><button type='submit' name='cancel_order' class='px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600'>Cancel</button></form></td>";
                                 } else {
-                                    echo "<td>-</td>";
+                                    echo "<td class='p-2'>-</td>";
                                 }
                                 echo "</tr>";
                             }

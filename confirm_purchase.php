@@ -20,27 +20,27 @@ $total = $stmt->get_result()->fetch_assoc()['total'] ?: 0;
 <head>
     <meta charset="UTF-8">
     <title>Purchase Confirmation</title>
-    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-    <div class="container">
-        <h2>Purchase Confirmation</h2>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
+        <h2 class="text-2xl font-bold text-center mb-6">Purchase Confirmation</h2>
         <?php if (isset($_SESSION['name'])): ?>
-            <p>Logged in as: <?php echo htmlspecialchars($_SESSION['name']); ?> (<a href="logout.php">Logout</a>)</p>
+            <p class="text-center text-gray-600 mb-4">Logged in as: <?php echo htmlspecialchars($_SESSION['name']); ?> (<a href="logout.php" class="text-blue-500 hover:underline">Logout</a>)</p>
         <?php endif; ?>
-        <nav>
-            <a href="index.php">Back to Home</a>
-            <a href="orders.php">View Cart</a>
+        <nav class="flex justify-between mb-6">
+            <a href="index.php" class="text-blue-500 hover:underline">Back to Home</a>
+            <a href="orders.php" class="text-blue-500 hover:underline">View Cart</a>
         </nav>
-        <p>Your purchase of $<?php echo number_format($total, 2); ?> has been confirmed!</p>
-        <h3>Payment Placeholder</h3>
-        <p>This is a simulated payment process. In a real system, you would be redirected to a payment gateway (e.g., PayPal, Stripe).</p>
-        <form method="POST" action="">
-            <button type="submit" name="simulate_payment">Simulate Payment</button>
+        <p class="text-center mb-4">Your purchase of $<span class="font-semibold"><?php echo number_format($total, 2); ?></span> has been confirmed!</p>
+        <h3 class="text-lg font-semibold text-center mb-2">Payment Placeholder</h3>
+        <p class="text-center text-gray-600 mb-4">This is a simulated payment process. In a real system, you would be redirected to a payment gateway (e.g., PayPal, Stripe).</p>
+        <form method="POST" action="" class="text-center">
+            <button type="submit" name="simulate_payment" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200">Simulate Payment</button>
         </form>
         <?php
         if (isset($_POST['simulate_payment'])) {
-            echo "<p class='success'>Payment of $" . number_format($total, 2) . " simulated successfully! Order is processing.</p>";
+            echo "<p class='text-green-500 text-center mt-4'>Payment of $<span class='font-semibold'>" . number_format($total, 2) . "</span> simulated successfully! Order is processing.</p>";
         }
         ?>
     </div>

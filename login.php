@@ -42,21 +42,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
-    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-    <div class="container">
-        <h2>Login</h2>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
+        <h2 class="text-2xl font-bold text-center mb-6">Login</h2>
         <?php if (isset($_SESSION['user_id'])): ?>
-            <p class="session-info">Logged in as: <?php echo htmlspecialchars($_SESSION['name']); ?> (<a href="logout.php">Logout</a>)</p>
+            <p class="text-center text-gray-600 mb-4">Logged in as: <?php echo htmlspecialchars($_SESSION['name']); ?> (<a href="logout.php" class="text-blue-500 hover:underline">Logout</a>)</p>
         <?php endif; ?>
-        <?php if (isset($error)) echo "<p class='error'>$error</p>"; ?>
-        <form method="POST">
-            <input type="text" name="username" placeholder="Username" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <button type="submit">Login</button>
+        <?php if (isset($error)): ?>
+            <p class="text-red-500 text-center mb-4"><?php echo $error; ?></p>
+        <?php endif; ?>
+        <form method="POST" class="space-y-4">
+            <div>
+                <input type="text" name="username" placeholder="Username" required class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <input type="password" name="password" placeholder="Password" required class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition duration-200">Login</button>
         </form>
-        <p><a href="register.php">Register</a></p>
+        <p class="text-center mt-4"><a href="register.php" class="text-blue-500 hover:underline">Register</a></p>
     </div>
 </body>
 </html>

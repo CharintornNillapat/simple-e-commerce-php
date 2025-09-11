@@ -90,115 +90,45 @@ if (isset($_GET['edit'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Customers</title>
-    <link rel="stylesheet" href="dashboard_styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            max-width: 800px;
-        }
-        .form-grid div {
-            margin-bottom: 1rem;
-        }
-        .form-grid label {
-            display: block;
-            margin-bottom: 0.25rem;
-            font-weight: 500;
-        }
-        .form-grid input, .form-grid textarea, .form-grid select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        .form-grid textarea {
-            height: 120px;
-            resize: vertical;
-        }
-        .image-preview {
-            border: 1px solid #ddd;
-            padding: 0.5rem;
-            border-radius: 4px;
-            display: inline-block;
-        }
-        .action-card.form-card {
-            background-color: #f9f9f9;
-            padding: 2rem;
-        }
-        .search-form {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        .search-form input {
-            flex-grow: 1;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .search-form button {
-            padding: 0.75rem 1.5rem;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .search-form button:hover {
-            background-color: #2980b9;
-        }
-        @media (max-width: 768px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            .search-form {
-                flex-direction: column;
-            }
-            .search-form button {
-                width: 100%;
-            }
-        }
-    </style>
 </head>
 <body>
-    <div class="dashboard-container">
+    <div class="flex min-h-screen">
         <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h2><i class="fas fa-store"></i> Admin Panel</h2>
+        <aside class="w-64 bg-gray-800 text-white p-4">
+            <div class="sidebar-header mb-6">
+                <h2 class="text-xl flex items-center"><i class="fas fa-store mr-2"></i> Admin Panel</h2>
             </div>
             
             <nav class="sidebar-nav">
                 <ul>
-                    <li class="nav-item">
-                        <a href="dashboard.php" class="nav-link">
+                    <li class="nav-item mb-2">
+                        <a href="dashboard.php" class="nav-link text-white hover:bg-gray-700 p-2 block rounded <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'bg-gray-700' : ''; ?>">
                             <i class="fas fa-tachometer-alt"></i>
                             <span>Dashboard</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="products.php" class="nav-link">
+                    <li class="nav-item mb-2">
+                        <a href="products.php" class="nav-link text-white hover:bg-gray-700 p-2 block rounded <?php echo basename($_SERVER['PHP_SELF']) == 'products.php' ? 'bg-gray-700' : ''; ?>">
                             <i class="fas fa-box"></i>
                             <span>Products</span>
                         </a>
                     </li>
-                    <li class="nav-item active">
-                        <a href="customers.php" class="nav-link">
+                    <li class="nav-item mb-2">
+                        <a href="customers.php" class="nav-link text-white hover:bg-gray-700 p-2 block rounded <?php echo basename($_SERVER['PHP_SELF']) == 'customers.php' ? 'bg-gray-700' : ''; ?>">
                             <i class="fas fa-users"></i>
                             <span>Customers</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="orders.php" class="nav-link">
+                    <li class="nav-item mb-2">
+                        <a href="orders.php" class="nav-link text-white hover:bg-gray-700 p-2 block rounded <?php echo basename($_SERVER['PHP_SELF']) == 'orders.php' ? 'bg-gray-700' : ''; ?>">
                             <i class="fas fa-shopping-cart"></i>
                             <span>Orders</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="admin_reorder_products.php" class="nav-link">
+                    <li class="nav-item mb-2">
+                        <a href="admin_reorder_products.php" class="nav-link text-white hover:bg-gray-700 p-2 block rounded <?php echo basename($_SERVER['PHP_SELF']) == 'admin_reorder_products.php' ? 'bg-gray-700' : ''; ?>">
                             <i class="fas fa-sort"></i>
                             <span>Reorder Products</span>
                         </a>
@@ -206,83 +136,83 @@ if (isset($_GET['edit'])) {
                 </ul>
             </nav>
             
-            <div class="sidebar-footer">
-                <div class="user-info">
-                    <i class="fas fa-user-circle"></i>
+            <div class="sidebar-footer mt-auto">
+                <div class="user-info flex items-center">
+                    <i class="fas fa-user-circle mr-2"></i>
                     <span><?php echo htmlspecialchars($_SESSION['name']); ?></span>
                 </div>
-                <a href="logout.php" class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i>
+                <a href="logout.php" class="block text-white hover:bg-gray-700 p-2 rounded mt-4">
+                    <i class="fas fa-sign-out-alt mr-2"></i>
                     <span>Logout</span>
                 </a>
             </div>
         </aside>
 
         <!-- Main Content -->
-        <main class="main-content">
-            <div class="content-header">
-                <h1>Customers</h1>
-                <div class="breadcrumb">
+        <main class="flex-1 p-6">
+            <div class="content-header mb-6">
+                <h1 class="text-2xl font-bold">Customers</h1>
+                <div class="breadcrumb text-gray-600">
                     <span>Home</span> / <span class="current">Customers</span>
                 </div>
             </div>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon customers">
-                        <i class="fas fa-users"></i>
+            <div class="stats-grid mb-6">
+                <div class="stat-card flex items-center p-4 bg-white rounded shadow">
+                    <div class="stat-icon text-blue-500 mr-4">
+                        <i class="fas fa-users text-2xl"></i>
                     </div>
                     <div class="stat-content">
-                        <h3><?php echo $conn->query("SELECT COUNT(*) as count FROM users WHERE role = 'customer'")->fetch_assoc()['count']; ?></h3>
-                        <p>Total Customers</p>
+                        <h3 class="text-xl font-semibold"><?php echo $conn->query("SELECT COUNT(*) as count FROM users WHERE role = 'customer'")->fetch_assoc()['count']; ?></h3>
+                        <p class="text-gray-600">Total Customers</p>
                     </div>
-                    <div class="stat-action">
-                        <a href="customers.php">Manage <i class="fas fa-arrow-right"></i></a>
+                    <div class="stat-action ml-auto">
+                        <a href="customers.php" class="text-blue-500 hover:underline">Manage <i class="fas fa-arrow-right ml-1"></i></a>
                     </div>
                 </div>
             </div>
 
             <div class="quick-actions">
-                <h2>Customer Management</h2>
+                <h2 class="text-xl font-semibold mb-4">Customer Management</h2>
                 <div class="action-grid">
-                    <div class="action-card form-card">
-                        <h3>Search Customers</h3>
-                        <form method="POST" class="search-form">
-                            <input type="text" name="search_query" placeholder="Search by name, username, or address" value="<?php echo htmlspecialchars($search_query); ?>">
-                            <button type="submit" name="search">Search</button>
+                    <div class="action-card bg-gray-100 p-8">
+                        <h3 class="text-lg font-semibold mb-4">Search Customers</h3>
+                        <form method="POST" class="flex gap-4 mb-6">
+                            <input type="text" name="search_query" placeholder="Search by name, username, or address" value="<?php echo htmlspecialchars($search_query); ?>" class="flex-1 p-2 border border-gray-300 rounded">
+                            <button type="submit" name="search" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Search</button>
                             <?php if ($search_query): ?>
-                                <a href="customers.php" class="action-btn" style="padding: 0.75rem 1.5rem;">Clear Search</a>
+                                <a href="customers.php" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">Clear Search</a>
                             <?php endif; ?>
                         </form>
-                        <h3><?php echo $edit_customer ? 'Edit Customer' : 'Add New Customer'; ?></h3>
-                        <form method="POST" class="form-grid">
+                        <h3 class="text-lg font-semibold mb-4"><?php echo $edit_customer ? 'Edit Customer' : 'Add New Customer'; ?></h3>
+                        <form method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl">
                             <?php if ($edit_customer): ?>
                                 <input type="hidden" name="id" value="<?php echo $edit_customer['id']; ?>">
                             <?php endif; ?>
                             <div>
-                                <label for="name">Name:</label>
-                                <input type="text" id="name" name="name" placeholder="Name" value="<?php echo $edit_customer ? $edit_customer['name'] : ''; ?>" required>
+                                <label for="name" class="block mb-1 font-medium">Name:</label>
+                                <input type="text" id="name" name="name" placeholder="Name" value="<?php echo $edit_customer ? $edit_customer['name'] : ''; ?>" required class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                             </div>
                             <div>
-                                <label for="username">Username:</label>
-                                <input type="text" id="username" name="username" placeholder="Username" value="<?php echo $edit_customer ? $edit_customer['username'] : ''; ?>" required>
+                                <label for="username" class="block mb-1 font-medium">Username:</label>
+                                <input type="text" id="username" name="username" placeholder="Username" value="<?php echo $edit_customer ? $edit_customer['username'] : ''; ?>" required class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                             </div>
                             <div>
-                                <label for="password">Password:</label>
-                                <input type="password" id="password" name="password" placeholder="Password (leave blank to keep unchanged)" <?php echo $edit_customer ? '' : 'required'; ?>>
+                                <label for="password" class="block mb-1 font-medium">Password:</label>
+                                <input type="password" id="password" name="password" placeholder="Password (leave blank to keep unchanged)" <?php echo $edit_customer ? '' : 'required'; ?> class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                             </div>
                             <div>
-                                <label for="address">Address:</label>
-                                <textarea id="address" name="address" placeholder="Address"><?php echo $edit_customer ? $edit_customer['address'] : ''; ?></textarea>
+                                <label for="address" class="block mb-1 font-medium">Address:</label>
+                                <textarea id="address" name="address" placeholder="Address" class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" style="height: 120px; resize: vertical;"><?php echo $edit_customer ? $edit_customer['address'] : ''; ?></textarea>
                             </div>
                             <div>
-                                <label for="role">Role:</label>
-                                <select id="role" name="role">
+                                <label for="role" class="block mb-1 font-medium">Role:</label>
+                                <select id="role" name="role" class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                                     <option value="customer" <?php echo ($edit_customer && $edit_customer['role'] == 'customer') ? 'selected' : ''; ?>>Customer</option>
                                 </select>
                             </div>
-                            <div style="grid-column: span 2;">
-                                <button type="submit" name="<?php echo $edit_customer ? 'update_customer' : 'add_customer'; ?>" class="action-btn" style="width: 100%; padding: 0.75rem;">
+                            <div class="md:col-span-2">
+                                <button type="submit" name="<?php echo $edit_customer ? 'update_customer' : 'add_customer'; ?>" class="w-full bg-blue-500 text-white p-3 rounded hover:bg-blue-600 transition duration-200">
                                     <?php echo $edit_customer ? 'Update Customer' : 'Add Customer'; ?>
                                 </button>
                             </div>
@@ -291,32 +221,32 @@ if (isset($_GET['edit'])) {
                 </div>
             </div>
 
-            <div class="quick-actions">
-                <h2>Customer List</h2>
+            <div class="quick-actions mt-6">
+                <h2 class="text-xl font-semibold mb-4">Customer List</h2>
                 <div class="action-grid">
-                    <div class="action-card" style="overflow-x: auto;">
-                        <table>
+                    <div class="action-card overflow-x-auto">
+                        <table class="w-full text-left">
                             <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Username</th>
-                                    <th>Address</th>
-                                    <th>Role</th>
-                                    <th>Created At</th>
-                                    <th>Actions</th>
+                                <tr class="border-b">
+                                    <th class="p-2">Name</th>
+                                    <th class="p-2">Username</th>
+                                    <th class="p-2">Address</th>
+                                    <th class="p-2">Role</th>
+                                    <th class="p-2">Created At</th>
+                                    <th class="p-2">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php while ($customer = $customers->fetch_assoc()): ?>
-                                <tr>
-                                    <td><?php echo htmlspecialchars($customer['name']); ?></td>
-                                    <td><?php echo htmlspecialchars($customer['username']); ?></td>
-                                    <td><?php echo $customer['address'] ?: 'No address'; ?></td>
-                                    <td><?php echo $customer['role']; ?></td>
-                                    <td><?php echo $customer['created_at']; ?></td>
-                                    <td>
-                                        <a href="customers.php?edit=<?php echo $customer['id']; ?>" class="action-btn" style="padding: 0.5rem 1rem; margin: 2px;">Edit</a>
-                                        <a href="customers.php?delete=<?php echo $customer['id']; ?>" class="action-btn" style="padding: 0.5rem 1rem; margin: 2px; background: #e74c3c;" onclick="return confirm('Are you sure you want to delete this customer?');">Delete</a>
+                                <tr class="border-b">
+                                    <td class="p-2"><?php echo htmlspecialchars($customer['name']); ?></td>
+                                    <td class="p-2"><?php echo htmlspecialchars($customer['username']); ?></td>
+                                    <td class="p-2"><?php echo $customer['address'] ?: 'No address'; ?></td>
+                                    <td class="p-2"><?php echo $customer['role']; ?></td>
+                                    <td class="p-2"><?php echo $customer['created_at']; ?></td>
+                                    <td class="p-2">
+                                        <a href="customers.php?edit=<?php echo $customer['id']; ?>" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 mr-2">Edit</a>
+                                        <a href="customers.php?delete=<?php echo $customer['id']; ?>" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600" onclick="return confirm('Are you sure you want to delete this customer?');">Delete</a>
                                     </td>
                                 </tr>
                                 <?php endwhile; ?>

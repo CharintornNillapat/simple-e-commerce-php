@@ -310,13 +310,16 @@ body {
 @media (max-width: 768px) {
     .sidebar {
         width: 100%;
+        width: 250px;
         position: relative;
         height: auto;
+        padding: 1rem 0;
     }
     
     .main-content {
         margin-left: 0;
-        padding: 1rem;
+        padding: 2rem;
+        flex-grow: 1;
     }
     
     .stats-grid {
