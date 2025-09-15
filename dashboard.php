@@ -7,11 +7,23 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
     exit;
 }
 
-// Fetch counts with minimal queries
-$product_count = $conn->query("SELECT COUNT(*) as count FROM products")->fetch_assoc()['count'];
-$customer_count = $conn->query("SELECT COUNT(*) as count FROM users WHERE role = 'customer'")->fetch_assoc()['count'];
-$order_count = $conn->query("SELECT COUNT(*) as count FROM orders")->fetch_assoc()['count'];
-$pending_orders = $conn->query("SELECT COUNT(*) as count FROM orders WHERE status = 'pending'")->fetch_assoc()['count'];
+// Fetch counts with a single query
+$sql = "SELECT 
+    (SELECT COUNT(*) FROM products) AS product_count,
+    (SELECT COUNT(*) FROM users WHERE role = 'customer') AS customer_count,
+    (SELECT COUNT(*) FROM orders) AS order_count,
+    (SELECT COUNT(*) FROM orders WHERE status = 'pending') AS pending_orders";
+$result = $conn->query($sql);
+if ($result) {
+    $counts = $result->fetch_assoc();
+    $product_count = $counts['product_count'];
+    $customer_count = $counts['customer_count'];
+    $order_count = $counts['order_count'];
+    $pending_orders = $counts['pending_orders'];
+} else {
+    $product_count = $customer_count = $order_count = $pending_orders = 0;
+    error_log("Dashboard query failed: " . $conn->error);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -24,47 +36,50 @@ $pending_orders = $conn->query("SELECT COUNT(*) as count FROM orders WHERE statu
 </head>
 <body>
     <div class="flex min-h-screen">
-        <!-- Sidebar -->
         <aside class="w-64 bg-gray-800 text-white p-4">
             <div class="sidebar-header mb-6">
-                <h2 class="text-xl flex items-center"><i class="fas fa-store mr-2"></i> Dashboard</h2>
+                <h2 class="text-xl flex items-center"><i class="fas fa-store mr-2"></i> Admin Panel</h2>
             </div>
-            
             <nav class="sidebar-nav">
                 <ul>
                     <li class="nav-item mb-2">
                         <a href="dashboard.php" class="nav-link text-white hover:bg-gray-700 p-2 block rounded <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'bg-gray-700' : ''; ?>">
-                            <i class="fas fa-tachometer-alt"></i>
+                            <i class="fas fa-tachometer-alt mr-2"></i>
                             <span>Dashboard</span>
                         </a>
                     </li>
                     <li class="nav-item mb-2">
                         <a href="products.php" class="nav-link text-white hover:bg-gray-700 p-2 block rounded <?php echo basename($_SERVER['PHP_SELF']) == 'products.php' ? 'bg-gray-700' : ''; ?>">
-                            <i class="fas fa-box"></i>
+                            <i class="fas fa-box mr-2"></i>
                             <span>Products</span>
                         </a>
                     </li>
                     <li class="nav-item mb-2">
                         <a href="customers.php" class="nav-link text-white hover:bg-gray-700 p-2 block rounded <?php echo basename($_SERVER['PHP_SELF']) == 'customers.php' ? 'bg-gray-700' : ''; ?>">
-                            <i class="fas fa-users"></i>
+                            <i class="fas fa-users mr-2"></i>
                             <span>Customers</span>
                         </a>
                     </li>
                     <li class="nav-item mb-2">
                         <a href="orders.php" class="nav-link text-white hover:bg-gray-700 p-2 block rounded <?php echo basename($_SERVER['PHP_SELF']) == 'orders.php' ? 'bg-gray-700' : ''; ?>">
-                            <i class="fas fa-shopping-cart"></i>
+                            <i class="fas fa-shopping-cart mr-2"></i>
                             <span>Orders</span>
                         </a>
                     </li>
                     <li class="nav-item mb-2">
                         <a href="admin_reorder_products.php" class="nav-link text-white hover:bg-gray-700 p-2 block rounded <?php echo basename($_SERVER['PHP_SELF']) == 'admin_reorder_products.php' ? 'bg-gray-700' : ''; ?>">
-                            <i class="fas fa-sort"></i>
+                            <i class="fas fa-sort mr-2"></i>
                             <span>Reorder Products</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="product_posts.php" class="nav-link text-white hover:bg-gray-700 p-2 block rounded <?php echo basename($_SERVER['PHP_SELF']) == 'product_posts.php' ? 'bg-gray-700' : ''; ?>">
+                            <i class="fas fa-edit mr-2"></i>
+                            <span>Product Posts</span>
                         </a>
                     </li>
                 </ul>
             </nav>
-            
             <div class="sidebar-footer mt-auto">
                 <div class="user-info flex items-center">
                     <i class="fas fa-user-circle mr-2"></i>
@@ -76,8 +91,6 @@ $pending_orders = $conn->query("SELECT COUNT(*) as count FROM orders WHERE statu
                 </a>
             </div>
         </aside>
-
-        <!-- Main Content -->
         <main class="flex-1 p-6">
             <div class="content-header mb-6">
                 <h1 class="text-2xl font-bold">Dashboard Overview</h1>
@@ -85,8 +98,6 @@ $pending_orders = $conn->query("SELECT COUNT(*) as count FROM orders WHERE statu
                     <span>Home</span> / <span class="current">Dashboard</span>
                 </div>
             </div>
-
-            <!-- Stats Cards -->
             <div class="stats-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
                 <div class="stat-card flex items-center p-4 bg-white rounded shadow">
                     <div class="stat-icon text-yellow-500 mr-4">
@@ -100,7 +111,6 @@ $pending_orders = $conn->query("SELECT COUNT(*) as count FROM orders WHERE statu
                         <a href="products.php" class="text-blue-500 hover:underline">Manage <i class="fas fa-arrow-right ml-1"></i></a>
                     </div>
                 </div>
-
                 <div class="stat-card flex items-center p-4 bg-white rounded shadow">
                     <div class="stat-icon text-green-500 mr-4">
                         <i class="fas fa-users text-2xl"></i>
@@ -113,7 +123,6 @@ $pending_orders = $conn->query("SELECT COUNT(*) as count FROM orders WHERE statu
                         <a href="customers.php" class="text-blue-500 hover:underline">Manage <i class="fas fa-arrow-right ml-1"></i></a>
                     </div>
                 </div>
-
                 <div class="stat-card flex items-center p-4 bg-white rounded shadow">
                     <div class="stat-icon text-blue-500 mr-4">
                         <i class="fas fa-shopping-cart text-2xl"></i>
@@ -126,7 +135,6 @@ $pending_orders = $conn->query("SELECT COUNT(*) as count FROM orders WHERE statu
                         <a href="orders.php" class="text-blue-500 hover:underline">View All <i class="fas fa-arrow-right ml-1"></i></a>
                     </div>
                 </div>
-
                 <div class="stat-card flex items-center p-4 bg-white rounded shadow">
                     <div class="stat-icon text-red-500 mr-4">
                         <i class="fas fa-clock text-2xl"></i>
@@ -140,8 +148,6 @@ $pending_orders = $conn->query("SELECT COUNT(*) as count FROM orders WHERE statu
                     </div>
                 </div>
             </div>
-
-            <!-- Quick Actions -->
             <div class="quick-actions">
                 <h2 class="text-xl font-semibold mb-6">Quick Actions</h2>
                 <div class="action-grid grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -151,7 +157,7 @@ $pending_orders = $conn->query("SELECT COUNT(*) as count FROM orders WHERE statu
                         </div>
                         <h3 class="text-lg font-semibold mb-2">Add Product</h3>
                         <p class="text-gray-600 mb-4 text-center">Add new products to your inventory</p>
-                        <a href="products.php" class="mt-auto bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Add Product</a>
+                        <a href="product_posts.php" class="mt-auto bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Add Product</a>
                     </div>
                     <div class="action-card flex flex-col items-center p-6 bg-white rounded shadow">
                         <div class="action-icon text-purple-500 mb-4">

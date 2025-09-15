@@ -3,22 +3,72 @@ session_start();
 require_once 'db_connect.php';
 
 if (!isset($_SESSION['user_id'])) {
-    // Optional: Redirect to login if not logged in, or allow guest access
+    // Redirect to login if not logged in (optional, currently commented out)
     // header('Location: login.php');
     // exit;
 }
 
+// Handle adding to cart
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_to_cart']) && isset($_POST['product_id'])) {
+    $user_id = $_SESSION['user_id'] ?? null;
+    if ($user_id) {
+        $product_id = $_POST['product_id'];
+        $quantity = (int)$_POST['quantity'];
+
+        // Check product availability
+        $check_sql = "SELECT quantity FROM products WHERE id = ? AND status = 'active'";
+        $check_stmt = $conn->prepare($check_sql);
+        $check_stmt->bind_param('i', $product_id);
+        $check_stmt->execute();
+        $product = $check_stmt->get_result()->fetch_assoc();
+
+        if ($product && $product['quantity'] >= $quantity) {
+            // Check if item already exists in cart
+            $cart_sql = "SELECT quantity FROM cart WHERE user_id = ? AND product_id = ?";
+            $cart_stmt = $conn->prepare($cart_sql);
+            $cart_stmt->bind_param('ii', $user_id, $product_id);
+            $cart_stmt->execute();
+            $existing_item = $cart_stmt->get_result()->fetch_assoc();
+
+            if ($existing_item) {
+                $new_quantity = $existing_item['quantity'] + $quantity;
+                $update_sql = "UPDATE cart SET quantity = ? WHERE user_id = ? AND product_id = ?";
+                $update_stmt = $conn->prepare($update_sql);
+                $update_stmt->bind_param('iii', $new_quantity, $user_id, $product_id);
+                $update_stmt->execute();
+            } else {
+                $insert_sql = "INSERT INTO cart (user_id, product_id, quantity, added_at) VALUES (?, ?, ?, NOW())";
+                $insert_stmt = $conn->prepare($insert_sql);
+                $insert_stmt->bind_param('iii', $user_id, $product_id, $quantity);
+                $insert_stmt->execute();
+            }
+            header('Location: cart.php');
+            exit;
+        } else {
+            $error = "Product out of stock or unavailable.";
+        }
+    } else {
+        header('Location: login.php');
+        exit;
+    }
+}
+
 $search_query = isset($_GET['search']) ? $_GET['search'] : '';
-$sort_by = isset($_GET['sort_by']) ? $_GET['sort_by'] : 'name_asc';
+$sort_by = isset($_GET['sort_by']) ? $_GET['sort_by'] : 'order_index'; // Default to order_index
 
 $where_clause = '';
 if ($search_query) {
     $search_param = "%$search_query%";
-    $where_clause = "WHERE (name LIKE ? OR category LIKE ?)";
+    $where_clause = "WHERE (name LIKE ? OR category LIKE ?) AND status = 'active'";
+} else {
+    $where_clause = "WHERE status = 'active'";
 }
 
 $order_clause = '';
 switch ($sort_by) {
+    case 'order_index':
+        $order_clause = 'ORDER BY order_index ASC'; // Custom order set by admin
+        break;
     case 'price_asc':
         $order_clause = 'ORDER BY price ASC';
         break;
@@ -34,7 +84,6 @@ switch ($sort_by) {
         break;
 }
 
-$where_clause = $where_clause ? $where_clause . " AND status = 'active'" : "WHERE status = 'active'";
 $sql = "SELECT * FROM products " . $where_clause . " " . $order_clause;
 $stmt = $conn->prepare($sql);
 
@@ -114,6 +163,7 @@ $products = $stmt->get_result();
                 </form>
                 <form method="GET" class="flex items-center gap-2">
                     <select name="sort_by" onchange="this.form.submit()" class="p-2 border border-gray-300 rounded">
+                        <option value="order_index" <?php echo $sort_by === 'order_index' ? 'selected' : ''; ?>>Custom Order</option>
                         <option value="name_asc" <?php echo $sort_by === 'name_asc' ? 'selected' : ''; ?>>Name (A-Z)</option>
                         <option value="name_desc" <?php echo $sort_by === 'name_desc' ? 'selected' : ''; ?>>Name (Z-A)</option>
                         <option value="price_asc" <?php echo $sort_by === 'price_asc' ? 'selected' : ''; ?>>Price (Low to High)</option>
@@ -127,14 +177,18 @@ $products = $stmt->get_result();
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         <?php while ($product = $products->fetch_assoc()): ?>
                             <div class="product-card bg-white p-4 rounded shadow">
-                                <?php if ($product['image']): ?>
-                                    <img src="uploads/<?php echo htmlspecialchars($product['image']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" class="w-full h-48 object-cover mb-2 rounded">
-                                <?php endif; ?>
+                                <a href="product_post_view.php?product_id=<?php echo $product['id']; ?>">
+                                    <?php if ($product['image']): ?>
+                                        <img src="uploads/<?php echo htmlspecialchars($product['image']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" class="w-full h-48 object-cover mb-2 rounded">
+                                    <?php else: ?>
+                                        <div class="w-full h-48 bg-gray-200 flex items-center justify-center mb-2 rounded">No Image</div>
+                                    <?php endif; ?>
+                                </a>
                                 <h3 class="text-lg font-semibold"><?php echo htmlspecialchars($product['name']); ?></h3>
                                 <p class="text-gray-600">Category: <?php echo htmlspecialchars($product['category']); ?></p>
                                 <p class="text-gray-800 font-bold">Price: $<?php echo number_format($product['price'], 2); ?></p>
                                 <p class="text-gray-600">Stock: <?php echo $product['quantity'] > 0 ? $product['quantity'] : 'Out of Stock'; ?></p>
-                                <form method="POST" action="cart.php" class="mt-2">
+                                <form method="POST" action="index.php" class="mt-2">
                                     <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
                                     <input type="hidden" name="quantity" value="1">
                                     <button type="submit" name="add_to_cart" <?php echo $product['quantity'] <= 0 ? 'disabled' : ''; ?> class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed">
