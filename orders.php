@@ -64,32 +64,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['search'])) {
                 <ul>
                     <li class="nav-item mb-2">
                         <a href="dashboard.php" class="nav-link text-white hover:bg-gray-700 p-2 block rounded <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'bg-gray-700' : ''; ?>">
-                            <i class="fas fa-tachometer-alt"></i>
+                            <i class="fas fa-tachometer-alt mr-2"></i>
                             <span>Dashboard</span>
                         </a>
                     </li>
                     <li class="nav-item mb-2">
                         <a href="products.php" class="nav-link text-white hover:bg-gray-700 p-2 block rounded <?php echo basename($_SERVER['PHP_SELF']) == 'products.php' ? 'bg-gray-700' : ''; ?>">
-                            <i class="fas fa-box"></i>
+                            <i class="fas fa-box mr-2"></i>
                             <span>Products</span>
                         </a>
                     </li>
                     <li class="nav-item mb-2">
                         <a href="customers.php" class="nav-link text-white hover:bg-gray-700 p-2 block rounded <?php echo basename($_SERVER['PHP_SELF']) == 'customers.php' ? 'bg-gray-700' : ''; ?>">
-                            <i class="fas fa-users"></i>
+                            <i class="fas fa-users mr-2"></i>
                             <span>Customers</span>
                         </a>
                     </li>
                     <li class="nav-item mb-2">
                         <a href="orders.php" class="nav-link text-white hover:bg-gray-700 p-2 block rounded <?php echo basename($_SERVER['PHP_SELF']) == 'orders.php' ? 'bg-gray-700' : ''; ?>">
-                            <i class="fas fa-shopping-cart"></i>
+                            <i class="fas fa-shopping-cart mr-2"></i>
                             <span>Orders</span>
                         </a>
                     </li>
                     <li class="nav-item mb-2">
                         <a href="admin_reorder_products.php" class="nav-link text-white hover:bg-gray-700 p-2 block rounded <?php echo basename($_SERVER['PHP_SELF']) == 'admin_reorder_products.php' ? 'bg-gray-700' : ''; ?>">
-                            <i class="fas fa-sort"></i>
+                            <i class="fas fa-sort mr-2"></i>
                             <span>Reorder Products</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="product_posts.php" class="nav-link text-white hover:bg-gray-700 p-2 block rounded <?php echo basename($_SERVER['PHP_SELF']) == 'product_posts.php' ? 'bg-gray-700' : ''; ?>">
+                            <i class="fas fa-edit mr-2"></i> Product Posts
                         </a>
                     </li>
                 </ul>

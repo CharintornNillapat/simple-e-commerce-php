@@ -63,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition duration-200">Login</button>
         </form>
         <p class="text-center mt-4"><a href="register.php" class="text-blue-500 hover:underline">Register</a></p>
+        <p class="text-center mt-4"><a href="index.php" class="text-green-500 hover:underline">Back to Home</a></p>
     </div>
 </body>
 </html>

@@ -125,6 +125,11 @@ $products = $stmt->get_result();
                             <i class="fas fa-history mr-2"></i> Order History
                         </a>
                     </li>
+                    <li class="nav-item mb-2">
+                        <a href="user_profile.php" class="nav-link text-white hover:bg-gray-700 p-2 block rounded <?php echo basename($_SERVER['PHP_SELF']) == 'user_profile.php' ? 'bg-gray-700' : ''; ?>">
+                            <i class="fas fa-user mr-2"></i> My Profile
+                        </a>
+                    </li>
                     <?php if (isset($_SESSION['user_id'])): ?>
                         <li class="nav-item mb-2">
                             <a href="logout.php" class="nav-link text-white hover:bg-gray-700 p-2 block rounded">

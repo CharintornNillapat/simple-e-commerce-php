@@ -84,6 +84,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['cancel_order'])) {
                         </a>
                     </li>
                     <li class="nav-item mb-2">
+                        <a href="user_profile.php" class="nav-link text-white hover:bg-gray-700 p-2 block rounded <?php echo basename($_SERVER['PHP_SELF']) == 'user_profile.php' ? 'bg-gray-700' : ''; ?>">
+                            <i class="fas fa-user mr-2"></i> My Profile
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
                         <a href="logout.php" class="nav-link text-white hover:bg-gray-700 p-2 block rounded">
                             <i class="fas fa-sign-out-alt mr-2"></i>
                             <span>Logout</span>

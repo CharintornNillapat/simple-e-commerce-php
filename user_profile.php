@@ -102,6 +102,7 @@ $orders = $stmt->get_result();
                         <p><strong>Phone Number:</strong> <?php echo htmlspecialchars($user['phone_number'] ?? 'N/A'); ?></p>
                         <p><strong>Address:</strong> <?php echo htmlspecialchars($user['address'] ?? 'N/A'); ?></p>
                         <p><strong>Member Since:</strong> <?php echo date('F j, Y', strtotime($user['created_at'] ?? '')); ?></p>
+                        <a href="user_profile_edit.php" class="mt-4 inline-block bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition duration-200">Edit Profile</a>
                     </div>
                     <div class="action-card bg-white p-6 rounded shadow mt-6">
                         <h2 class="text-xl font-semibold mb-4">Order History</h2>
